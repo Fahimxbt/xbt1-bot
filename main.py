@@ -1,8 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 import asyncio
-from flask import Flask
-from threading import Thread
 
 # ========== CONFIG ==========
 STRING_SESSION = '1BVtsOHgBu60QAahD6ILkOhmE5sm9LmkBaKt002pQlFD8Yk9GT7CST8Fq-E6W_IVn4fQfd5W-uqWZdMmR1tfWf3JM_rdZkYKhvO0VAIoeY9JsedAtqUu3o9aZ-dLkMdapWM0jY9GrJrU8rh-wBOoXMGkUfIFniHvehNTwp0BgDo_If9fWnK_L49hucHCMRNXPiZOp7SPfTJ5gwUDcxa7PKXrlX8O7VeLkJhvOqv-NOdEc1MQ4mDmJb91QRR65PKtCuQjuzUSLL7gEFvLUXo2bTsqI-x5eYhrDxFGOxdOA8U3oRdMpxg4lD7TOdvJpxX1I_gOW6yL0laOFtC6k6-j6ttrS6KWA82E='
@@ -10,21 +8,6 @@ API_ID = 21142963
 API_HASH = '157441cb92fd4c237664fc09d33963b9'
 # ============================
 
-# Keep-alive web server for Railway
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "xbt1-bot is running!"
-
-def run_web():
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run_web)
-    t.start()
-
-# Bot setup
 client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 bot_entity = None
@@ -68,7 +51,6 @@ async def click_next():
     except Exception as e:
         print(f"[!] get_messages error: {e}")
     
-    # Fallback
     try:
         await client.send_message(bot_entity, '/next')
         print("[→] /next sent (fallback)")
@@ -135,10 +117,5 @@ async def main():
     await client.run_until_disconnected()
 
 
-# ========== START EVERYTHING ==========
-# Start keep-alive server FIRST (before bot)
-keep_alive()
-
-# Start bot
 with client:
     client.loop.run_until_complete(main())
