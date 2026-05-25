@@ -1,27 +1,16 @@
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 import asyncio
 from flask import Flask
 from threading import Thread
 
-# Keep-alive web server for UptimeRobot
-app = Flask('')
+# PASTE YOUR STRING SESSION HERE
+STRING_SESSION = '1BVtsOHgBu60QAahD6ILkOhmE5sm9LmkBaKt002pQlFD8Yk9GT7CST8Fq-E6W_IVn4fQfd5W-uqWZdMmR1tfWf3JM_rdZkYKhvO0VAIoeY9JsedAtqUu3o9aZ-dLkMdapWM0jY9GrJrU8rh-wBOoXMGkUfIFniHvehNTwp0BgDo_If9fWnK_L49hucHCMRNXPiZOp7SPfTJ5gwUDcxa7PKXrlX8O7VeLkJhvOqv-NOdEc1MQ4mDmJb91QRR65PKtCuQjuzUSLL7gEFvLUXo2bTsqI-x5eYhrDxFGOxdOA8U3oRdMpxg4lD7TOdvJpxX1I_gOW6yL0laOFtC6k6-j6ttrS6KWA82E='
 
-@app.route('/')
-def home():
-    return "xbt1-bot is running!"
-
-def run_web():
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run_web)
-    t.start()
-
-# Bot setup
 API_ID = 21142963
 API_HASH = '157441cb92fd4c237664fc09d33963b9'
 
-client = TelegramClient('session', API_ID, API_HASH)
+client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 bot_entity = None
 sticker_msg_id = None
