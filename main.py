@@ -4,12 +4,27 @@ import asyncio
 from flask import Flask
 from threading import Thread
 
-# PASTE YOUR STRING SESSION HERE
+# ========== CONFIG ==========
 STRING_SESSION = '1BVtsOHgBu60QAahD6ILkOhmE5sm9LmkBaKt002pQlFD8Yk9GT7CST8Fq-E6W_IVn4fQfd5W-uqWZdMmR1tfWf3JM_rdZkYKhvO0VAIoeY9JsedAtqUu3o9aZ-dLkMdapWM0jY9GrJrU8rh-wBOoXMGkUfIFniHvehNTwp0BgDo_If9fWnK_L49hucHCMRNXPiZOp7SPfTJ5gwUDcxa7PKXrlX8O7VeLkJhvOqv-NOdEc1MQ4mDmJb91QRR65PKtCuQjuzUSLL7gEFvLUXo2bTsqI-x5eYhrDxFGOxdOA8U3oRdMpxg4lD7TOdvJpxX1I_gOW6yL0laOFtC6k6-j6ttrS6KWA82E='
-
 API_ID = 21142963
 API_HASH = '157441cb92fd4c237664fc09d33963b9'
+# ============================
 
+# Keep-alive web server for Railway
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "xbt1-bot is running!"
+
+def run_web():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run_web)
+    t.start()
+
+# Bot setup
 client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 bot_entity = None
@@ -20,34 +35,46 @@ promo_sent = False
 
 async def find_sticker():
     global sticker_msg_id
-    msgs = await client.get_messages('me', limit=30)
-    for m in msgs:
-        if m.sticker:
-            sticker_msg_id = m.id
-            print("[+] Sticker found!")
-            return True
+    try:
+        msgs = await client.get_messages('me', limit=30)
+        for m in msgs:
+            if m.sticker:
+                sticker_msg_id = m.id
+                print("[+] Sticker found!")
+                return True
+    except Exception as e:
+        print(f"[!] Sticker find error: {e}")
     print("[!] No sticker in Saved Messages!")
     return False
 
 
 async def click_next():
     global match_active, promo_sent
-    msgs = await client.get_messages(bot_entity, limit=5)
-    for m in msgs:
-        if m.reply_markup:
-            for row in m.reply_markup.rows:
-                for btn in row.buttons:
-                    if 'Next' in btn.text:
-                        try:
-                            await m.click(text=btn.text)
-                            print("[→] Next clicked")
-                            match_active = False
-                            promo_sent = False
-                            return True
-                        except:
-                            pass
-    await client.send_message(bot_entity, '/next')
-    print("[→] /next sent")
+    try:
+        msgs = await client.get_messages(bot_entity, limit=5)
+        for m in msgs:
+            if m.reply_markup:
+                for row in m.reply_markup.rows:
+                    for btn in row.buttons:
+                        if 'Next' in btn.text:
+                            try:
+                                await m.click(text=btn.text)
+                                print("[→] Next clicked")
+                                match_active = False
+                                promo_sent = False
+                                return True
+                            except:
+                                continue
+    except Exception as e:
+        print(f"[!] get_messages error: {e}")
+    
+    # Fallback
+    try:
+        await client.send_message(bot_entity, '/next')
+        print("[→] /next sent (fallback)")
+    except Exception as e:
+        print(f"[!] Fallback error: {e}")
+    
     match_active = False
     promo_sent = False
     return True
@@ -66,7 +93,7 @@ async def send_promo():
         print("[+] Promo sent!")
         promo_sent = True
     except Exception as e:
-        print(f"[!] Error: {e}")
+        print(f"[!] Send error: {e}")
 
 
 @client.on(events.NewMessage(chats='@tikible_bot'))
@@ -108,7 +135,8 @@ async def main():
     await client.run_until_disconnected()
 
 
-# Start keep-alive server
+# ========== START EVERYTHING ==========
+# Start keep-alive server FIRST (before bot)
 keep_alive()
 
 # Start bot
