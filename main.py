@@ -1,9 +1,10 @@
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 import asyncio
+import random
 
 # ========== CONFIG ==========
-STRING_SESSION = '1BVtsOHgBu60QAahD6ILkOhmE5sm9LmkBaKt002pQlFD8Yk9GT7CST8Fq-E6W_IVn4fQfd5W-uqWZdMmR1tfWf3JM_rdZkYKhvO0VAIoeY9JsedAtqUu3o9aZ-dLkMdapWM0jY9GrJrU8rh-wBOoXMGkUfIFniHvehNTwp0BgDo_If9fWnK_L49hucHCMRNXPiZOp7SPfTJ5gwUDcxa7PKXrlX8O7VeLkJhvOqv-NOdEc1MQ4mDmJb91QRR65PKtCuQjuzUSLL7gEFvLUXo2bTsqI-x5eYhrDxFGOxdOA8U3oRdMpxg4lD7TOdvJpxX1I_gOW6yL0laOFtC6k6-j6ttrS6KWA82E='
+STRING_SESSION = '1BVtsOHkBu4fLwjsEq8x5VN0k2ab4gdzhRFBZoma4jssW1jW7R2N9-HnQdA51l5kpOoizhtsNM9f3jRhOa8VHUsR872ClCCSsUgh4Udt2AeEaqkmLWhvcmRDN9HhzTVVhwWlHBkfTpOMBavUVQ2rrT5He0nP11-B0dfBkULZxsVOVlCJHS-MNGwJUXBfsdZUMa2ARzWvq5UePsrU3rv5lC9ZQGk_9QU6OpdWnOjySPZ0f8mTYVoIrawgzVclzpzPHUKzsA5oDqRhftKvdHxpOvbz4CsmjHV3_6f66IG8I4Nz9b83wPjn-98CvrW9sY6zqcyEGbFCwTaqRoV3EJrlLAyzG_HiSBKU='
 API_ID = 21142963
 API_HASH = '157441cb92fd4c237664fc09d33963b9'
 # ============================
@@ -66,14 +67,37 @@ async def send_promo():
     global promo_sent
     if promo_sent:
         return
-    print("[*] Sending promo...")
+    
+    print("[*] Sending messages sequence...")
+    
     try:
+        # Step 1: Send "hi"
+        await client.send_message(bot_entity, "hi")
+        print("[+] Sent: hi")
+        
+        # Wait 2 seconds
+        await asyncio.sleep(2)
+        
+        # Step 2: Send "F"
+        await client.send_message(bot_entity, "F")
+        print("[+] Sent: F")
+        
+        # Wait 1 second
+        await asyncio.sleep(1)
+        
+        # Step 3: Forward sticker
         if sticker_msg_id:
             await client.forward_messages(bot_entity, sticker_msg_id, 'me')
+            print("[+] Sticker forwarded!")
         else:
             await client.send_message(bot_entity, "💜 @chatxbt_bot\nhttps://t.me/chatxbt_bot")
-        print("[+] Promo sent!")
+            print("[+] Text promo sent!")
+        
         promo_sent = True
+        
+        # Wait 2 seconds before next
+        await asyncio.sleep(2)
+        
     except Exception as e:
         print(f"[!] Send error: {e}")
 
@@ -89,7 +113,6 @@ async def handler(event):
         promo_sent = False
         await asyncio.sleep(0.5)
         await send_promo()
-        await asyncio.sleep(5)
         await click_next()
         return
     
@@ -101,7 +124,6 @@ async def handler(event):
     if match_active and not event.out and not promo_sent:
         print("[+] Partner messaged first!")
         await send_promo()
-        await asyncio.sleep(5)
         await click_next()
 
 
