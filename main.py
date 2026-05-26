@@ -16,7 +16,7 @@ hi_msg_id = None
 f_msg_id = None
 match_active = False
 promo_sent = False
-sending_lock = False  # Prevents double-sending
+sending_lock = False
 
 
 async def find_sticker():
@@ -78,7 +78,6 @@ async def click_next():
 async def send_promo():
     global promo_sent, sending_lock
     
-    # Lock to prevent double-sending
     if sending_lock or promo_sent:
         print("[*] Already sending or already sent, skipping...")
         return
@@ -106,8 +105,8 @@ async def send_promo():
             await client.send_message(bot_entity, "F")
             print("[+] Sent: F")
         
-        # Wait 4 seconds
-        await asyncio.sleep(4)
+        # Wait 6 seconds before sticker
+        await asyncio.sleep(6)
         
         # Step 3: Forward sticker
         if sticker_msg_id:
@@ -126,7 +125,7 @@ async def send_promo():
         print(f"[!] Send error: {e}")
     
     finally:
-        sending_lock = False  # Release lock
+        sending_lock = False
 
 
 @client.on(events.NewMessage(chats='@tikible_bot'))
@@ -134,7 +133,6 @@ async def handler(event):
     global match_active, promo_sent, sending_lock
     text = event.text or ''
     
-    # Ignore messages while we're sending
     if sending_lock:
         print("[*] Currently sending, ignoring new message...")
         return
@@ -143,7 +141,7 @@ async def handler(event):
         print("[+] Match started!")
         match_active = True
         promo_sent = False
-        await asyncio.sleep(1)  # Small delay before starting
+        await asyncio.sleep(1)
         await send_promo()
         await click_next()
         return
@@ -154,7 +152,6 @@ async def handler(event):
         promo_sent = False
         return
     
-    # Only respond to partner message if we haven't sent yet
     if match_active and not event.out and not promo_sent and not sending_lock:
         print("[+] Partner messaged first!")
         await send_promo()
