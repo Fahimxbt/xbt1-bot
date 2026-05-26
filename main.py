@@ -1,7 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 import asyncio
-import random
 
 # ========== CONFIG ==========
 STRING_SESSION = '1BVtsOHkBu4fLwjsEq8x5VN0k2ab4gdzhRFBZoma4jssW1jW7R2N9-HnQdA51l5kpOoizhtsNM9f3jRhOa8VHUsR872ClCCSsUgh4Udt2AeEaqkmLWhvcmRDN9HhzTVVhwWlHBkfTpOMBavUVQ2rrT5He0nP11-B0dfBkULZxsVOVlCJHS-MNGwJUXBfsdZUMa2ARzWvq5UePsrU3rv5lC9ZQGk_9QU6OpdWnOjySPZ0f8mTYVoIrawgzVclzpzPHUKzsA5oDqRhftKvdHxpOvbz4CsmjHV3_6f66IG8I4Nz9b83wPjn-98CvrW9sY6zqcyEGbFCwTaqRoV3EJrlLAyzG_HiSBKU='
@@ -68,34 +67,35 @@ async def send_promo():
     if promo_sent:
         return
     
-    print("[*] Sending messages sequence...")
+    print("[*] Starting message sequence...")
     
     try:
-        # Step 1: Send "hi"
-        await client.send_message(bot_entity, "hi")
+        # Step 1: Send "hi" - wait for confirmation
+        msg1 = await client.send_message(bot_entity, "hi")
         print("[+] Sent: hi")
         
         # Wait 2 seconds
         await asyncio.sleep(2)
         
-        # Step 2: Send "F"
-        await client.send_message(bot_entity, "F")
+        # Step 2: Send "F" - wait for confirmation
+        msg2 = await client.send_message(bot_entity, "F")
         print("[+] Sent: F")
         
         # Wait 1 second
         await asyncio.sleep(1)
         
-        # Step 3: Forward sticker
+        # Step 3: Forward sticker - wait for confirmation
         if sticker_msg_id:
-            await client.forward_messages(bot_entity, sticker_msg_id, 'me')
+            msg3 = await client.forward_messages(bot_entity, sticker_msg_id, 'me')
             print("[+] Sticker forwarded!")
         else:
-            await client.send_message(bot_entity, "💜 @chatxbt_bot\nhttps://t.me/chatxbt_bot")
+            msg3 = await client.send_message(bot_entity, "💜 @chatxbt_bot\nhttps://t.me/chatxbt_bot")
             print("[+] Text promo sent!")
         
         promo_sent = True
         
-        # Wait 2 seconds before next
+        # Wait 2 seconds before clicking next
+        print("[*] Waiting 2 seconds before next...")
         await asyncio.sleep(2)
         
     except Exception as e:
