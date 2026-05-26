@@ -12,6 +12,8 @@ client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
 
 bot_entity = None
 sticker_msg_id = None
+hi_msg_id = None
+f_msg_id = None
 match_active = False
 promo_sent = False
 
@@ -19,15 +21,25 @@ promo_sent = False
 async def find_sticker():
     global sticker_msg_id
     try:
-        msgs = await client.get_messages('me', limit=30)
+        msgs = await client.get_messages('me', limit=50)
         for m in msgs:
             if m.sticker:
                 sticker_msg_id = m.id
                 print("[+] Sticker found!")
-                return True
+            if m.text and m.text.lower() == 'hi':
+                hi_msg_id = m.id
+                print("[+] 'hi' message found!")
+            if m.text and m.text.upper() == 'F':
+                f_msg_id = m.id
+                print("[+] 'F' message found!")
+        
+        if sticker_msg_id and hi_msg_id and f_msg_id:
+            return True
+            
     except Exception as e:
-        print(f"[!] Sticker find error: {e}")
-    print("[!] No sticker in Saved Messages!")
+        print(f"[!] Find error: {e}")
+    
+    print("[!] Send 'hi', 'F', and sticker to Saved Messages first!")
     return False
 
 
@@ -67,35 +79,42 @@ async def send_promo():
     if promo_sent:
         return
     
-    print("[*] Starting message sequence...")
+    print("[*] Starting forward sequence...")
     
     try:
-        # Step 1: Send "hi" - wait for confirmation
-        msg1 = await client.send_message(bot_entity, "hi")
-        print("[+] Sent: hi")
+        # Step 1: Forward "hi" from Saved Messages
+        if hi_msg_id:
+            await client.forward_messages(bot_entity, hi_msg_id, 'me')
+            print("[+] Forwarded: hi")
+        else:
+            await client.send_message(bot_entity, "hi")
+            print("[+] Sent: hi")
         
         # Wait 2 seconds
         await asyncio.sleep(2)
         
-        # Step 2: Send "F" - wait for confirmation
-        msg2 = await client.send_message(bot_entity, "F")
-        print("[+] Sent: F")
+        # Step 2: Forward "F" from Saved Messages
+        if f_msg_id:
+            await client.forward_messages(bot_entity, f_msg_id, 'me')
+            print("[+] Forwarded: F")
+        else:
+            await client.send_message(bot_entity, "F")
+            print("[+] Sent: F")
         
         # Wait 1 second
         await asyncio.sleep(1)
         
-        # Step 3: Forward sticker - wait for confirmation
+        # Step 3: Forward sticker from Saved Messages
         if sticker_msg_id:
-            msg3 = await client.forward_messages(bot_entity, sticker_msg_id, 'me')
+            await client.forward_messages(bot_entity, sticker_msg_id, 'me')
             print("[+] Sticker forwarded!")
         else:
-            msg3 = await client.send_message(bot_entity, "💜 @chatxbt_bot\nhttps://t.me/chatxbt_bot")
+            await client.send_message(bot_entity, "💜 @chatxbt_bot\nhttps://t.me/chatxbt_bot")
             print("[+] Text promo sent!")
         
         promo_sent = True
         
-        # Wait 2 seconds before clicking next
-        print("[*] Waiting 2 seconds before next...")
+        # Wait 2 seconds before next
         await asyncio.sleep(2)
         
     except Exception as e:
