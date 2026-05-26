@@ -3,7 +3,7 @@ from telethon.sessions import StringSession
 import asyncio
 
 # ========== CONFIG ==========
-STRING_SESSION = '1BVtsOHkBu4fLwjsEq8x5VN0k2ab4gdzhRFBZoma4jssW1jW7R2N9-HnQdA51l5kpOoizhtsNM9f3jRhOa8VHUsR872ClCCSsUgh4Udt2AeEaqkmLWhvcmRDN9HhzTVVhwWlHBkfTpOMBavUVQ2rrT5He0nP11-B0dfBkULZxsVOVlCJHS-MNGwJUXBfsdZUMa2ARzWvq5UePsrU3rv5lC9ZQGk_9QU6OpdWnOjySPZ0f8mTYVoIrawgzVclzpzPHUKzsA5oDqRhftKvdHxpOvbz4CsmjHV3_6f66IG8I4Nz9b83wPjn-98CvrW9sY6zqcyEGbFCwTaqRoV3EJrlLAyzG_HiSBKU='
+STRING_SESSION = 'cmR'
 API_ID = 21142963
 API_HASH = '157441cb92fd4c237664fc09d33963b9'
 # ============================
