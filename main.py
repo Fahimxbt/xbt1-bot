@@ -3,9 +3,9 @@ from telethon.sessions import StringSession
 import asyncio
 
 # ========== CONFIG ==========
-STRING_SESSION = 'cmR'
-API_ID = 21142963
-API_HASH = '157441cb92fd4c237664fc09d33963b9'
+STRING_SESSION = '1BVtsOHkBu4Ybso9Q2aPNLD6AXVVrJUL5diBXGpoC873EL2xoAYatox6StzpTkrspujrHMI3UBYFSB92rxfmNmSVxetOuzQiTAResL_fIoG925aOOdWcpOY9-KPQsGCVEDLFuT7jFQc4PP6L1RxJrjdlhBCtOwF7SHV-PMZSw2pnvbrPEVuqOL1ytIcw4n3lWK8eei6ZUBFWkCsTxwzsF38TVFzFCXeWH7SSPnopSpuEs72AiuV_xh01ITlBuXpjqpdmJ6CPUaRX9Fe4GZKOKZII3CVTIjEzMBsQMbQFfwKsbPIkk2Hr1xKwwzTNLW8g3gnTMdTLBujUe_IrxxVCBWGE005YhwR0='
+API_ID = 25897592
+API_HASH = '94e48115fc78c3eeca61a4561443f1ef'
 # ============================
 
 client = TelegramClient(StringSession(STRING_SESSION), API_ID, API_HASH)
