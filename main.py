@@ -16,10 +16,11 @@ hi_msg_id = None
 f_msg_id = None
 match_active = False
 promo_sent = False
+sending_lock = False  # Prevents double-sending
 
 
 async def find_sticker():
-    global sticker_msg_id
+    global sticker_msg_id, hi_msg_id, f_msg_id
     try:
         msgs = await client.get_messages('me', limit=50)
         for m in msgs:
@@ -75,14 +76,18 @@ async def click_next():
 
 
 async def send_promo():
-    global promo_sent
-    if promo_sent:
+    global promo_sent, sending_lock
+    
+    # Lock to prevent double-sending
+    if sending_lock or promo_sent:
+        print("[*] Already sending or already sent, skipping...")
         return
     
+    sending_lock = True
     print("[*] Starting forward sequence...")
     
     try:
-        # Step 1: Forward "hi" from Saved Messages
+        # Step 1: Forward "hi"
         if hi_msg_id:
             await client.forward_messages(bot_entity, hi_msg_id, 'me')
             print("[+] Forwarded: hi")
@@ -90,10 +95,10 @@ async def send_promo():
             await client.send_message(bot_entity, "hi")
             print("[+] Sent: hi")
         
-        # Wait 2 seconds
-        await asyncio.sleep(2)
+        # Wait 4 seconds
+        await asyncio.sleep(4)
         
-        # Step 2: Forward "F" from Saved Messages
+        # Step 2: Forward "F"
         if f_msg_id:
             await client.forward_messages(bot_entity, f_msg_id, 'me')
             print("[+] Forwarded: F")
@@ -101,10 +106,10 @@ async def send_promo():
             await client.send_message(bot_entity, "F")
             print("[+] Sent: F")
         
-        # Wait 1 second
-        await asyncio.sleep(1)
+        # Wait 4 seconds
+        await asyncio.sleep(4)
         
-        # Step 3: Forward sticker from Saved Messages
+        # Step 3: Forward sticker
         if sticker_msg_id:
             await client.forward_messages(bot_entity, sticker_msg_id, 'me')
             print("[+] Sticker forwarded!")
@@ -114,23 +119,31 @@ async def send_promo():
         
         promo_sent = True
         
-        # Wait 2 seconds before next
-        await asyncio.sleep(2)
+        # Wait 4 seconds before next
+        await asyncio.sleep(4)
         
     except Exception as e:
         print(f"[!] Send error: {e}")
+    
+    finally:
+        sending_lock = False  # Release lock
 
 
 @client.on(events.NewMessage(chats='@tikible_bot'))
 async def handler(event):
-    global match_active, promo_sent
+    global match_active, promo_sent, sending_lock
     text = event.text or ''
+    
+    # Ignore messages while we're sending
+    if sending_lock:
+        print("[*] Currently sending, ignoring new message...")
+        return
     
     if 'Match successful' in text:
         print("[+] Match started!")
         match_active = True
         promo_sent = False
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)  # Small delay before starting
         await send_promo()
         await click_next()
         return
@@ -138,9 +151,11 @@ async def handler(event):
     if 'Finding a random partner' in text:
         print("[...] Searching...")
         match_active = False
+        promo_sent = False
         return
     
-    if match_active and not event.out and not promo_sent:
+    # Only respond to partner message if we haven't sent yet
+    if match_active and not event.out and not promo_sent and not sending_lock:
         print("[+] Partner messaged first!")
         await send_promo()
         await click_next()
